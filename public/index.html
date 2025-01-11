@@ -19,6 +19,41 @@
         <input id="message-input" type="text" placeholder="Type your message">
         <button id="send-message">Send</button>
     </div>
-    <script src="script.js"></script>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io('http://localhost:3000');
+
+        const usernameInput = document.getElementById('username');
+        const joinButton = document.getElementById('join-chat');
+        const loginPage = document.getElementById('login-page');
+        const chatPage = document.getElementById('chat-page');
+        const messagesDiv = document.getElementById('messages');
+        const messageInput = document.getElementById('message-input');
+        const sendMessageButton = document.getElementById('send-message');
+
+        joinButton.addEventListener('click', () => {
+            const username = usernameInput.value;
+            if (username) {
+                socket.emit('join', username);
+                loginPage.style.display = 'none';
+                chatPage.style.display = 'block';
+            }
+        });
+
+        socket.on('message', (data) => {
+            const messageElement = document.createElement('div');
+            messageElement.textContent = `${data.username}: ${data.message}`;
+            messagesDiv.appendChild(messageElement);
+        });
+
+        sendMessageButton.addEventListener('click', () => {
+            const message = messageInput.value;
+            if (message) {
+                socket.emit('message', { username: usernameInput.value, message });
+                messageInput.value = '';  // Clear input field after sending
+            }
+        });
+    </script>
 </body>
 </html>
